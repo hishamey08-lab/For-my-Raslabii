@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>For-my-Raslabii 💞</title>
+
+<style>
+body{
+  margin:0;
+  font-family:'Georgia', serif;
+  text-align:center;
+  background:#000;
+  color:white;
+  overflow-x:hidden;
+}
+
+.hidden{display:none;}
+
+button{
+  padding:12px 25px;
+  margin:10px;
+  font-size:16px;
+  border:none;
+  border-radius:25px;
+  background:linear-gradient(45deg,#ff5f9e,#ff9a9e);
+  color:white;
+  cursor:pointer;
+}
+
+input{
+  padding:10px;
+  font-size:16px;
+  border-radius:8px;
+  border:none;
+}
+
+.gallery{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin:20px 0;
+}
+
+.gallery img{
+  width:220px;
+  margin:10px;
+  border-radius:15px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.5);
+}
+
+/* Falling */
+.falling{
+  position:fixed;
+  top:-50px;
+  font-size:24px;
+  animation:fall linear infinite;
+  pointer-events:none;
+}
+
+@keyframes fall{
+  0%{transform:translateY(-50px);}
+  100%{transform:translateY(110vh);}
+}
+
+/* Memory cards */
+.card{
+  width:70px;
+  height:70px;
+  font-size:30px;
+  border-radius:12px;
+}
+
+/* Heart game */
+#heartBtn{
+  font-size:40px;
+  border-radius:50%;
+  padding:20px;
+}
+</style>
+</head>
+
+<body>
+
+<audio id="bgMusic" src="https://orangefreesounds.com/wp-content/uploads/2024/11/Instrumental-christmas-music.mp3" loop></audio>
+
+<!-- PASSWORD -->
+<div id="passwordPage">
+  <h2>Enter the secret password 💖</h2>
+  <input type="password" id="passwordInput" placeholder="Password">
+  <br><br>
+  <button onclick="checkPassword()">Unlock 💞</button>
+  <p id="error" style="color:#ff9a9e;"></p>
+</div>
+
+<!-- QUESTIONS -->
+<div id="page1" class="hidden">
+  <h2>1️⃣ Do you remember our first photo together? 💞</h2>
+  <button onclick="showPage('page2')">❤️ Yes</button>
+  <button onclick="showPage('page2')">😌 Of course</button>
+</div>
+
+<div id="page2" class="hidden">
+  <h2>2️⃣ Do you remember our first hug 😊</h2>
+  <button onclick="showPage('page3')">❤️ Yes</button>
+  <button onclick="showPage('page3')">💖 Of course</button>
+</div>
+
+<div id="page3" class="hidden">
+  <h2>3️⃣ Do you remember our first kiss 😘</h2>
+  <button onclick="showPage('page4')">😍 Yes</button>
+  <button onclick="showPage('page4')">❤️ Absolutely</button>
+</div>
+
+<div id="page4" class="hidden">
+  <h2>4️⃣ Are you ready for a game? 🎮</h2>
+  <button onclick="startGames()">Yes 🎄</button>
+</div>
+
+<!-- GAME 3 MEMORY -->
+<div id="gameMemory" class="hidden">
+  <h2>Match the hearts 💞</h2>
+  <div style="display:flex;justify-content:center;gap:15px;flex-wrap:wrap;">
+    <button class="card" onclick="flipCard(this,'❤️')">❓</button>
+    <button class="card" onclick="flipCard(this,'💍')">❓</button>
+    <button class="card" onclick="flipCard(this,'❤️')">❓</button>
+    <button class="card" onclick="flipCard(this,'💍')">❓</button>
+  </div>
+</div>
+
+<!-- GAME 2 QUIZ -->
+<div id="gameQuiz" class="hidden">
+  <h2>Who do I love the most? 💖</h2>
+  <button onclick="quizWrong()">🍫 Chocolates</button>
+  <button onclick="quizWrong()">😴 Sleep</button>
+  <button onclick="quizCorrect()">❤️ You</button>
+  <p id="quizMsg"></p>
+</div>
+
+<!-- GAME 1 HEART -->
+<div id="gameHeart" class="hidden">
+  <h2>Catch my heart ❤️</h2>
+  <button id="heartBtn" onclick="catchHeart()">❤️</button>
+  <p id="heartCount"></p>
+</div>
+
+<!-- COUNTDOWN -->
+<div id="countdown" class="hidden">
+  <h2>Your surprise is coming 💓</h2>
+  <h1 id="counter">5</h1>
+</div>
+
+<!-- FINAL PAGE -->
+<div id="finalPage" class="hidden">
+  <h1>For-my-Raslabii 💞🎄</h1>
+
+  <div class="gallery">
+    <img src="IMG-20251005-WA0029.jpg">
+    <img src="IMG-20251129-WA0032.jpg">
+  </div>
+
+  <p>
+    This Christmas is special because of you ❤️<br><br>
+    You are my strength, my peace, my everything 💕
+  </p>
+
+  <h2>I love you always 💖</h2>
+</div>
+
+<script>
+document.addEventListener("click",()=>{
+  document.getElementById("bgMusic").play().catch(()=>{});
+},{once:true});
+
+const correctPassword="RAAHII";
+
+function checkPassword(){
+  if(passwordInput.value===correctPassword){
+    passwordPage.classList.add("hidden");
+    page1.classList.remove("hidden");
+    createFalling();
+  }else error.innerText="Wrong password 💔";
+}
+
+function showPage(id){
+  ["page1","page2","page3","page4","gameMemory","gameQuiz","gameHeart","countdown","finalPage"]
+  .forEach(p=>document.getElementById(p)?.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  if(id==="countdown") startCountdown();
+}
+
+function startGames(){ showPage("gameMemory"); }
+
+/* MEMORY */
+let first=null,second=null,matched=0;
+function flipCard(btn,s){
+  if(btn.innerText!=="❓")return;
+  btn.innerText=s;
+  if(!first) first=btn;
+  else{
+    second=btn;
+    if(first.innerText===second.innerText){
+      matched++; first=second=null;
+      if(matched===2) setTimeout(()=>showPage("gameQuiz"),700);
+    }else{
+      setTimeout(()=>{
+        first.innerText=second.innerText="❓";
+        first=second=null;
+      },700);
+    }
+  }
+}
+
+/* QUIZ */
+function quizWrong(){
+  quizMsg.innerText="Nope 😌 Try again";
+}
+function quizCorrect(){
+  quizMsg.innerText="Correct 💞";
+  setTimeout(()=>showPage("gameHeart"),800);
+}
+
+/* HEART */
+let taps=0;
+function catchHeart(){
+  taps++;
+  heartCount.innerText=`Caught ${taps}/5`;
+  if(taps>=5) showPage("countdown");
+}
+
+/* COUNTDOWN */
+function startCountdown(){
+  let c=5;
+  const i=setInterval(()=>{
+    counter.innerText=c--;
+    if(c<0){
+      clearInterval(i);
+      showPage("finalPage");
+    }
+  },1000);
+}
+
+/* FALLING */
+function createFalling(){
+  ['❄','❤️','❅'].forEach(sym=>{
+    for(let i=0;i<10;i++){
+      const e=document.createElement('div');
+      e.className='falling';
+      e.innerText=sym;
+      e.style.left=Math.random()*100+'vw';
+      e.style.animationDuration=(5+Math.random()*10)+'s';
+      document.body.appendChild(e);
+    }
+  });
+}
+</script>
+
+</body>
+  </html>
